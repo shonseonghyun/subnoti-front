@@ -18,7 +18,6 @@
 # # CMD [ "npm", "start" ]
 
 
-
 # step 1 빌드를 하기 위한 과정
 FROM node:16-alpine AS build
 
