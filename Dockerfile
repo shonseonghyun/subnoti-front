@@ -37,7 +37,7 @@ RUN npm install --force
 
 # 체크
 RUN ls -lrt
-RUN PWD
+# RUN PWD
 
 COPY . ./
 
