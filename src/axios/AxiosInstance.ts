@@ -69,7 +69,7 @@ export const refreshAccessTokenWithRefreshToken = (authUserInfo:IAuthUserInfo,se
                     console.log("재발급 진행 요청");
 
                     //accessToken 재발급 요청
-                    const response = await axios.post(`http://localhost:8001/api/v1/auth/reissue`,{
+                    const response = await axios.post(`${process.env.REACT_APP_SERVER_IP}/api/v1/auth/reissue`,{
                              refreshToken: refreshToken
                     });
 
