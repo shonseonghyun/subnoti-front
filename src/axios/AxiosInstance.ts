@@ -3,21 +3,18 @@ import { Resetter, SetterOrUpdater } from "recoil";
 import { IAuthUserInfo } from "../recoil/AuthUserInfo";
 
 export const PublicApi = axios.create({
-    baseURL:"http://localhost:8001",
-    withCredentials:true //이걸 넣으니 보인다
+    baseURL: process.env.REACT_APP_SERVER_IP,
+    withCredentials:true
 })
 
 export const PrivateApi = axios.create({
-    baseURL:"http://localhost:8001",
-    // headers: {
-    //     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    // },
-    withCredentials:true //이걸 넣으니 보인다
+    baseURL: process.env.REACT_APP_SERVER_IP,
+    withCredentials:true
 })
 
 const RefreshApi = axios.create({
-    baseURL:"http://localhost:8001",
-    withCredentials:true //이걸 넣으니 보인다
+    baseURL: process.env.REACT_APP_SERVER_IP,
+    withCredentials:true 
 })
 
 export const setAccessToken = (accessToken:string)=>{

@@ -6,6 +6,7 @@
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "cra-template-typescript": "1.2.0",
+    "env-cmd": "^10.1.0",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.9",
     "react-cookie": "^7.2.2",
@@ -23,7 +24,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "CI=false && react-scripts build",
+    "build:dev": "CI=false && env-cmd -f .env.development react-scripts build",
+    "build:prod": "CI=false && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

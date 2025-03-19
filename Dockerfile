@@ -42,7 +42,7 @@ RUN ls -lrt
 COPY . ./
 
 # app폴더에서 build 진행되었으므로 build디렉터리 생성 -> /app/build
-RUN npm run build
+RUN npm run build:prod
 
 # step 2 실행 스테이지를 위한 과정
 # nginx 이미지를 사용합니다. 뒤에 tag가 없으면 latest 를 사용합니다.
