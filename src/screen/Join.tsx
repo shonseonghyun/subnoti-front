@@ -93,16 +93,23 @@ const Join = () => {
                 <Form.Group className="mb-3" as={Col} controlId="formGridState">
                     <Form.Label>성별</Form.Label>
                         <Form.Select {...register("gender",{
-                            required:"성별을 선택해주세요",
-                            pattern:{
-                                value:/^[FE]{0,}MALE$/,
-                                message:"성별을 선택해주세요."
-                            }
-                        })}>
-                        <option selected disabled>성별을 선택해주세요</option>
+                                required:"성별을 선택해주세요",
+                                pattern:{
+                                    value:/^[FE]{0,}MALE$/,
+                                    message:"성별을 선택해주세요."
+                                }
+                            })}
+                            defaultValue="default"
+                        >
+                        <option disabled>성별을 선택해주세요</option>
                         <option value={"MALE"}>남성</option>
                         <option value={"FEMALE"}>여성</option>
                     </Form.Select>
+                    {errors.gender && (
+                        <Form.Text className="text-danger">
+                            {errors.gender.message}
+                        </Form.Text>
+                    )}
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId="formBasicName">

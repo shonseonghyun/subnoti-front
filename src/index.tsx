@@ -6,6 +6,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { RecoilRoot } from 'recoil';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import { toast } from 'react-toastify';
+import { getErrorDataByCode } from './interface/Error';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -21,8 +23,26 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry:0,
-      useErrorBoundary:true,
+      useErrorBoundary:true
     },
+    
+    mutations:{
+      useErrorBoundary:false,
+      onSuccess: ()=>{
+        console.log("index.tsx mutations onSuccess");
+
+        toast.success("성공!!",{
+          position:"top-center"
+        });
+      },
+      onError:(error:any) =>{
+        console.log("index.tsx mutations onError");
+        
+        toast.error(getErrorDataByCode(error).content,{
+          position:"top-center"
+        });
+      }
+    }
   },
 });
 

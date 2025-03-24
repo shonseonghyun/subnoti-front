@@ -44,3 +44,13 @@ export const fetchGetEnum = async (key:string)=>{
     return await PublicApi.get(url)
     .then(response=>response.data);
 }
+
+export const fetchReissueAccessTokenWithRefreshToken = async (refreshToken:string)=>{
+    const url = `/api/v1/auth/reissue`;
+    return await PublicApi.post(url,{
+        refreshToken:refreshToken
+        }
+    ).then(response=>response.data)
+    .catch(error=>error)
+    ;
+}

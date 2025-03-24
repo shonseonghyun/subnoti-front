@@ -15,11 +15,6 @@ export const useRegFetchSubNoti=(onSuccess:any)=>{
         (data:INotiRegType)=>fetchRegSubNoti(data),
         {
             onSuccess:onSuccess,
-            onError(error) {
-                if(error instanceof AxiosError){
-                    alert(error.response?.data.msg);
-                }
-            },
         }
     );
 }

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Resetter, SetterOrUpdater } from "recoil";
 import { IAuthUserInfo } from "../recoil/AuthUserInfo";
+import { fetchReissueAccessTokenWithRefreshToken } from "./api";
 
 export const PublicApi = axios.create({
     baseURL: process.env.REACT_APP_SERVER_IP,
@@ -18,29 +19,21 @@ const RefreshApi = axios.create({
 })
 
 export const setAccessToken = (accessToken:string)=>{
-    console.log("setAccessToken 메소드 실행");
+    console.log("AxiosInstance[setAccessToken] exec");
 
     const requestInterceptor= PrivateApi.interceptors.request.use(
         (config)=>{
-            console.log("인터셉트 시작");
-            console.log("액세스토큰: ",accessToken);
-            try{
-                config.headers.Authorization = `Bearer ${accessToken}`;
-            }catch(err){
-                alert(err)
-            }
-            console.log("인터셉트 종료");
-    
+            config.headers.Authorization = `Bearer ${accessToken}`;
             return config;
         }
     );
     return requestInterceptor;
-    // console.log("이게뭐지: ", a);
 }
 
 export const refreshAccessTokenWithRefreshToken = (authUserInfo:IAuthUserInfo,setAuthUserInfo:SetterOrUpdater<IAuthUserInfo>,resetAuthInfo: Resetter) =>{
+    console.log("AxiosInstance[refreshAccessTokenWithRefreshToken] exec");
+    
     const refreshToken = authUserInfo.refreshToken;
-
     const refreshTokenInterceptor = PrivateApi.interceptors.response.use(
         //정상응답인경우
         (response)=>{
@@ -49,34 +42,36 @@ export const refreshAccessTokenWithRefreshToken = (authUserInfo:IAuthUserInfo,se
 
         //200 외 응답인 경우
         async (error)=>{
-            console.log("200외 응답 받음");
-            console.log(error.response);
-            console.log(error.response.data.code);
-
-            if(error.response ===undefined){
-                // alert("데이터를 불러올 수 없습니다. 재시도 부탁드립니다.");
+            if(error.response === undefined){
+                console.log("error인스턴스 reponse 존재하지 않음");
                 return Promise.reject(error); // 리액트 쿼리 onError 탐
                 // return ; //리액트 쿼리 onSuccess 탐
             }
 
             const originalConfig = error.config;
+            console.log(originalConfig);
             const code = error.response.data.code;
-            const msg = error.response.data.msg;
-
             
-            if(code =="J01"){
-                if(refreshToken){ //refreshToken 존재한다면
-                    console.log("재발급 진행 요청");
+            if(code =="J01"){ // AccessToken Expried case .. 
+                if(refreshToken){ // refreshToken 존재한다면
+                    console.log("Reissue AccessToken With RefreshToken");
 
                     //accessToken 재발급 요청
-                    const response = await axios.post(`${process.env.REACT_APP_SERVER_IP}/api/v1/auth/reissue`,{
-                             refreshToken: refreshToken
-                    });
+                    const response = await fetchReissueAccessTokenWithRefreshToken(refreshToken); 
+                    console.log("accessToken 재발급 요청에 대한 응답: ",response);
 
-                    const reissueAccessToken = response.data.data.accessToken;
-                    const reissueRefreshToken = response.data.data.refreshToken;
+                    
+                    //성공 시 response.code , response.msg , response.data. 로 들어온다
+                    //실패 시 response(에러 객체).response.data.code로 들어온다.
+                    if(response?.response?.data?.code == "J02"){ //RefreshToken Expried case .. 
+                        resetAuthInfo();
+                        return Promise.reject(error);
+                    }
 
-                    //  accessToken 설정
+                    const reissueAccessToken = response.data.accessToken;
+                    const reissueRefreshToken = response.data.refreshToken;
+
+                    // accessToken 설정
                      setAuthUserInfo({
                         accessToken: reissueAccessToken,
                         refreshToken: reissueRefreshToken,
@@ -86,21 +81,19 @@ export const refreshAccessTokenWithRefreshToken = (authUserInfo:IAuthUserInfo,se
                     });
 
 
-                    //재요청 시 header 세팅
+                    // 재요청 시 header 세팅
                     originalConfig.headers["Authorization"] = "Bearer " + reissueAccessToken;
                     
-                    //재요청
-                    //PrivatApi로 요청 시 "PrivateApi.interceptors.response.use"내가 등록한 인터셉터가 실행되게 되어 인터셉터 내부 구성해둔 토큰재발급 및 재요청이 두 번 발생한다.
+                    // 재요청
+                    // PrivatApi로 요청 시 "PrivateApi.interceptors.response.use"내가 등록한 인터셉터가 실행되게 되어 인터셉터 내부 구성해둔 토큰재발급 및 재요청이 두 번 발생한다.
                     // const originalResponse = await PrivateApi(originalConfig);
                     const originalResponse = await RefreshApi(originalConfig); 
                     return originalResponse;
                 }
-            }else{
-                console.log("자동 로그인하지 않음");
-                alert(msg);
-                resetAuthInfo();
-                return error;
             }
+
+            // AccessToken Expried case가 아닌 경우 reissue 필요 없으므로 그대로 error 리턴
+            return Promise.reject(error);
         }
     );
     return refreshTokenInterceptor;

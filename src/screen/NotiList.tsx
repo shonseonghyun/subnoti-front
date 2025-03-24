@@ -1,15 +1,12 @@
 import React, { useCallback } from 'react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
-import { QueryErrorResetBoundary, useQueryClient } from 'react-query';
+import { useQueryClient } from 'react-query';
 import { useRecoilValue } from 'recoil';
 import Loading2 from '../component/Loading/AppLoading';
 import { useFetchDelSubNoti } from '../hooks/query/useFetchDelSubNoti';
 import { useFetchGetSubNotiList } from '../hooks/query/useFetchGetSubNotiList';
 import { AuthUserInfo, getAuthUserInfo } from '../recoil/AuthUserInfo';
 import { formatDateTime } from '../utils/DateUtil';
-import { ErrorBoundary } from 'react-error-boundary';
-import Error from '../component/Error/ErrorCustom';
-import ErrorCustom from '../component/Error/ErrorCustom';
 
 const NotiList = () => {
     const authUserInfo = useRecoilValue(getAuthUserInfo); 
@@ -58,41 +55,6 @@ const NotiList = () => {
                 getSubNotiList.isLoading || delSubNoti.isLoading ? <Loading2 /> : null
             }
         </div>
-        
-
-        //     <QueryErrorResetBoundary>
-        //         {({ reset }) => (
-        //             <ErrorBoundary onReset={reset}  FallbackComponent={ErrorCustom}>
-        // <div>
-        //     <Row xs={1} md={2} className="g-2 m-4">
-        //         {
-        //             getSubNotiList.data && 
-        //             getSubNotiList.data.data.map((item:any) => (
-        //                 <Col key={item.notiNo}>
-        //                     <Card>
-        //                         {/* <Card.Img variant="top" src="holder.js/100px160" /> */}
-        //                         <Card.Body>
-        //                             <Card.Title onClick={()=>clickedMatch(item.matchNo)} style={{cursor:"pointer",display:"inline-block"}}>{item.matchName}</Card.Title>
-        //                             <Card.Text>
-        //                                 {formatDateTime(item.startDt+item.startTm)} 
-        //                             </Card.Text>
-        //                             <Button variant="primary" onClick={()=>clickedDelNoti(item.notiNo)}>등록 해제</Button>
-        //                         </Card.Body>
-        //                         <Card.Footer className="text-muted">
-        //                             {item.subType}
-        //                         </Card.Footer>
-        //                     </Card>
-        //                 </Col>
-        //             ))
-        //         }
-        //     </Row>
-        //     {
-        //         getSubNotiList.isLoading || delSubNoti.isLoading ? <Loading2 /> : null
-        //     }
-        // </div>
-        //             </ErrorBoundary>
-        //         )}
-        //     </QueryErrorResetBoundary>
     );
 };
 

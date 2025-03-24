@@ -10,6 +10,7 @@ import { useFetchGetPlabMatch } from '../hooks/query/useFetchPlabMatch';
 import { useRegFetchSubNoti } from '../hooks/query/useRegFetchSubNoti';
 import { INotiRegType } from '../interface/interface';
 import { AuthUserInfo } from '../recoil/AuthUserInfo';
+import { toast } from 'react-toastify';
 
 const NotiReg = () => {
     const {register,handleSubmit,watch,formState:{errors},resetField,reset,setFocus} = useForm<INotiRegType>({mode:"onBlur"});
@@ -22,8 +23,12 @@ const NotiReg = () => {
     const authUserInfo = useRecoilValue(AuthUserInfo);
     const queryClient = useQueryClient();
     const memberNo = useRecoilValue(AuthUserInfo).memberNo;
-    const onSuccess = () =>{
-        alert("등록 완료하였습니다.");
+    const onSuccess = (data:any) =>{
+        console.log("컴포넌트 onSuccess:",data);
+        toast.success("등록 성공!",{
+            position:"top-center"
+          });
+
         reset();
         setIsMathcNoAvailable(false);
         queryClient.invalidateQueries(["member",{memberNo:memberNo}],{ refetchInactive: true }); //https://pebblepark.tistory.com/32
@@ -47,16 +52,15 @@ const NotiReg = () => {
 
     const clickedValidBtn = async ()=>{
         if(errors.matchNo){
-            console.log("matchNo Err:",errors.matchNo.message);
             return;
         }
 
         const response = await getPlabMatch.refetch();
         if((response.error as AxiosError)?.response?.status === 404){
-            alert("존재하지 않는 매치번호 입니다.");
             setIsMathcNoAvailable(false);
             return ;
         }
+
         alert("매치번호 인증완료하였습니다.");
         setIsMathcNoAvailable(true);
     }
@@ -93,7 +97,17 @@ const NotiReg = () => {
                 </Form.Group>
                 <Form.Group as={Col} controlId="formGridState">
                     <Form.Label className='fs-5'>서브 타입</Form.Label>
-                    <Form.Select {...register("subType")} defaultValue={getSubTypeEnum.data && getSubTypeEnum.data.data[0].name}>
+                    <Form.Select {...register("subType",{
+                        pattern:{
+                            value :/^(?!.*default).*$/,
+                            message:"서브 타입을 선택해주세요."
+                        }
+                    })} defaultValue={
+                        // getSubTypeEnum.data && getSubTypeEnum.data.data[0]
+                        "default"
+                    }
+                    >
+                        <option value="default" disabled>프리 서브를 선택해주세요.</option>
                         {
                             getSubTypeEnum.data && 
                             getSubTypeEnum.data.data.map((item:any)=>{
@@ -103,6 +117,11 @@ const NotiReg = () => {
                             })
                         }
                     </Form.Select>
+                    {errors.subType && (
+                        <Form.Text className="text-danger mt-1">
+                            {errors.subType.message}
+                        </Form.Text>
+                    )}
                 </Form.Group>
 
                 <div className="d-grid gap-2 mt-4">
