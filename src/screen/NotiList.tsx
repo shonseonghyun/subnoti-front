@@ -7,6 +7,7 @@ import { useFetchDelSubNoti } from '../hooks/query/useFetchDelSubNoti';
 import { useFetchGetSubNotiList } from '../hooks/query/useFetchGetSubNotiList';
 import { AuthUserInfo, getAuthUserInfo } from '../recoil/AuthUserInfo';
 import { formatDateTime } from '../utils/DateUtil';
+import { toast } from 'react-toastify';
 
 const NotiList = () => {
     const authUserInfo = useRecoilValue(getAuthUserInfo); 
@@ -19,7 +20,9 @@ const NotiList = () => {
     },[]);
 
     const onSuccess = () =>{
-        alert("등록 해제하였습니다.");
+        toast.success("성공!!",{
+            position:"top-center"
+          });
         queryClient.invalidateQueries(["member",{memberNo:memberNo}],{ refetchInactive: true }); //https://pebblepark.tistory.com/32
     };
     const delSubNoti = useFetchDelSubNoti(onSuccess);
@@ -27,6 +30,7 @@ const NotiList = () => {
     const clickedDelNoti = (notiNo:number) =>{  
         delSubNoti.mutate(notiNo);
     }
+    
     return (
         <div>
             <Row xs={1} md={2} className="g-2 m-4">
